@@ -5,7 +5,7 @@
 void HandleStateIdle();
 void HandleStateMotorActive();
 
-unsigned long time;
+unsigned long currentTime;
 
 enum STATES {
   STATE_INVALID = 0,
@@ -88,7 +88,7 @@ void HandleStateIdle()
     selectedProduct = 1;
     digitalWrite(M1_OUT_A, HIGH);
     digitalWrite(M1_OUT_B, LOW);
-    time = millis();
+    currentTime = millis();
     currentState = STATES::STATE_MOTOR_ACTIVE;
   }
 
@@ -97,7 +97,7 @@ void HandleStateIdle()
     selectedProduct = 2;
     digitalWrite(M2_OUT_A, HIGH);
     digitalWrite(M2_OUT_B, LOW);
-    time = millis();
+    currentTime = millis();
     currentState = STATES::STATE_MOTOR_ACTIVE;
   }
 
@@ -106,7 +106,7 @@ void HandleStateIdle()
     selectedProduct = 1;
     digitalWrite(M1_OUT_A, LOW);
     digitalWrite(M1_OUT_B, HIGH);
-    time = millis();
+    currentTime = millis();
     currentState = STATES::STATE_MOTOR_ACTIVE;
   }
 
@@ -115,14 +115,14 @@ void HandleStateIdle()
     selectedProduct = 2;
     digitalWrite(M2_OUT_A, LOW);
     digitalWrite(M2_OUT_B, HIGH);
-    time = millis();
+    currentTime = millis();
     currentState = STATES::STATE_MOTOR_ACTIVE;
   }
 }
 
 void HandleStateMotorActive()
 {
-  if(millis() - time >= outputTime)
+  if(millis() - currentTime >= outputTime)
   {
     currentState = STATES::STATE_IDLE;
     digitalWrite(M1_OUT_A, LOW);
