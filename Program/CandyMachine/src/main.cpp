@@ -1,6 +1,6 @@
 #include <Bounce2.h>
 
-#define outputTime 3000
+#define motorRunningTime 3000
 
 void HandleStateIdle();
 void HandleStateMotorActive();
@@ -13,14 +13,14 @@ enum STATES {
   STATE_MOTOR_ACTIVE = 2,
 };
 
-const int BTN_PROD1 = 3;
-const int BTN_PROD2 = 4;
-const int BTN_PROD1_REFILL = 5;
-const int BTN_PROD2_REFILL = 6;
-const int M1_OUT_A = 10;
-const int M1_OUT_B = 11;
-const int M2_OUT_A = 12;
-const int M2_OUT_B = 13;
+const int BTN_PROD1 = D9;
+const int BTN_PROD2 = D8;
+const int BTN_PROD1_REFILL = D11;
+const int BTN_PROD2_REFILL = D12;
+const int M1_OUT_A = D7;
+const int M1_OUT_B = D6;
+const int M2_OUT_A = D5;
+const int M2_OUT_B = D4;
 
 enum STATES currentState = STATES::STATE_IDLE;
 int selectedProduct = 0;
@@ -122,7 +122,7 @@ void HandleStateIdle()
 
 void HandleStateMotorActive()
 {
-  if(millis() - currentTime >= outputTime)
+  if(millis() - currentTime >= motorRunningTime)
   {
     currentState = STATES::STATE_IDLE;
     digitalWrite(M1_OUT_A, LOW);
