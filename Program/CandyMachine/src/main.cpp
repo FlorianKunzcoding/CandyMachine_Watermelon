@@ -129,5 +129,17 @@ void HandleStateMotorActive()
     digitalWrite(M1_OUT_B, LOW);
     digitalWrite(M2_OUT_A, LOW);
     digitalWrite(M2_OUT_B, LOW);
+
+    if (selectedProduct == 1)
+    {
+      digitalWrite(M1_OUT_A, LOW);
+      digitalWrite(M1_OUT_B, LOW);
+    }
+
+    if (selectedProduct == 2)
+    {
+      digitalWrite(M2_OUT_A, LOW);
+      digitalWrite(M2_OUT_B, LOW);
+    }
   }
 }
