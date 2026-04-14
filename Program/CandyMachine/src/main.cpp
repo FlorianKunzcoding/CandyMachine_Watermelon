@@ -1,4 +1,6 @@
 #include <Bounce2.h>
+#include <LiquidCrystal_I2C.h>  // LiquidCrystal_I2C Bibliothek einbinden.
+#include <Wire.h>               // Wire Bibliothek einbinden.
 
 #define motorRunningTime 3000
 
@@ -13,22 +15,21 @@ enum STATES {
   STATE_MOTOR_ACTIVE = 2,
 };
 
-const int BTN_PROD1 = D9;
-const int BTN_PROD2 = D8;
-const int BTN_PROD1_REFILL = D11;
-const int BTN_PROD2_REFILL = D12;
-const int M1_OUT_A = D7;
-const int M1_OUT_B = D6;
-const int M2_OUT_A = D5;
-const int M2_OUT_B = D4;
+const int BTN_PROD1 = 8;
+const int BTN_PROD2 = 9;
+const int M1_OUT_A = 3;
+const int M1_OUT_B = 4;
+const int M2_OUT_A = 5;
+const int M2_OUT_B = 6;
+
+// Bestimmung des Displays:
+LiquidCrystal_I2C lcd(0x3f, 16, 2);   // HEX-Adresse 0x3f, 16 Zeichen in 2 Zeilen.
 
 enum STATES currentState = STATES::STATE_IDLE;
 int selectedProduct = 0;
 
 Bounce2::Button button_prod1 = Bounce2::Button();
 Bounce2::Button button_prod2 = Bounce2::Button();
-Bounce2::Button button_prod1_REFILL = Bounce2::Button();
-Bounce2::Button button_prod2_REFILL = Bounce2::Button();
 
 void setup() {
   // put your setup code here, to run once:
@@ -46,8 +47,14 @@ void setup() {
   pinMode(M1_OUT_B, OUTPUT);
   pinMode(M2_OUT_A, OUTPUT);
   pinMode(M2_OUT_B, OUTPUT);
+ 
+
 
   currentState = STATES::STATE_IDLE;
+
+  lcd.init();       // Im Setup wird der LCD gestartet.
+  lcd.backlight();  // Hintergrundbeleuchtung einschalten.
+                    // ( lcd.noBacklight(); schaltet die Beleuchtung aus).
 }
 
 
@@ -56,8 +63,6 @@ void loop() {
   // put your main code here, to run repeatedly:
   button_prod1.update();
   button_prod2.update();
-  button_prod1_REFILL.update();
-  button_prod2_REFILL.update();
 
   switch(currentState)
   {
@@ -80,12 +85,11 @@ void HandleStateIdle()
   bool btn_prod1_pressed = button_prod1.pressed();
   bool btn_prod2_pressed = button_prod2.pressed();
 
-  bool btn_prod1_REFILL_pressed = button_prod1_REFILL.pressed();
-  bool btn_prod2_REFILL_pressed = button_prod2_REFILL.pressed();
-
   if (btn_prod1_pressed)
   {
     selectedProduct = 1;
+    Printer("Produkt", 0);
+    Printer("1", 1);
     digitalWrite(M1_OUT_A, HIGH);
     digitalWrite(M1_OUT_B, LOW);
     currentTime = millis();
@@ -95,26 +99,10 @@ void HandleStateIdle()
   if (btn_prod2_pressed)
   {
     selectedProduct = 2;
+    Printer("Produkt", 0);
+    Printer("2", 1);
     digitalWrite(M2_OUT_A, HIGH);
     digitalWrite(M2_OUT_B, LOW);
-    currentTime = millis();
-    currentState = STATES::STATE_MOTOR_ACTIVE;
-  }
-
-  if (btn_prod1_REFILL_pressed)
-  {
-    selectedProduct = 1;
-    digitalWrite(M1_OUT_A, LOW);
-    digitalWrite(M1_OUT_B, HIGH);
-    currentTime = millis();
-    currentState = STATES::STATE_MOTOR_ACTIVE;
-  }
-
-  if (btn_prod2_REFILL_pressed)
-  {
-    selectedProduct = 2;
-    digitalWrite(M2_OUT_A, LOW);
-    digitalWrite(M2_OUT_B, HIGH);
     currentTime = millis();
     currentState = STATES::STATE_MOTOR_ACTIVE;
   }
@@ -129,5 +117,13 @@ void HandleStateMotorActive()
     digitalWrite(M1_OUT_B, LOW);
     digitalWrite(M2_OUT_A, LOW);
     digitalWrite(M2_OUT_B, LOW);
+    Printer("Bitte wählen", 0);
+    Printer("Sie ein Produkt", 1);
   }
+}
+
+void Printer(String text, int row)
+{
+  lcd.setCursor(text.length(), row);
+  lcd.print(text);
 }
