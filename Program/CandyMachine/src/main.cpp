@@ -124,6 +124,6 @@ void HandleStateMotorActive()
 
 void Printer(String text, int row)
 {
-  lcd.setCursor(text.length(), row);
+  lcd.setCursor((16 - text.length())/2, row);
   lcd.print(text);
 }
