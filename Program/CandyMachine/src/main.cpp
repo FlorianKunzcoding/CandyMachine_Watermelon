@@ -6,6 +6,7 @@
 
 void HandleStateIdle();
 void HandleStateMotorActive();
+void Printer(String Name, int Row);
 
 unsigned long currentTime;
 
