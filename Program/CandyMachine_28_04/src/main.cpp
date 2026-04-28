@@ -1,7 +1,7 @@
 #include <Bounce2.h>
 #include <LiquidCrystal_I2C.h>  // LiquidCrystal_I2C Bibliothek einbinden.
 #include <Wire.h>               // Wire Bibliothek einbinden.
-
+#include <Arduino.h>
 #define motorRunningTime 3000
 
 void HandleStateIdle();
@@ -16,12 +16,13 @@ enum STATES {
   STATE_MOTOR_ACTIVE = 2,
 };
 
-const int BTN_PROD1 = D8;
-const int BTN_PROD2 = D9;
-const int M1_OUT_A = D3;
-const int M1_OUT_B = D4;
-const int M2_OUT_A = D5;
-const int M2_OUT_B = D6;
+const int BTN_PROD1 = 8;
+const int BTN_PROD2 = 9;
+const int M1_OUT_A = GPIO_NUM_22;
+const int M1_OUT_B = 4;
+const int M2_OUT_A = 27;
+const int M2_OUT_B = 6;
+
 
 // Bestimmung des Displays:
 LiquidCrystal_I2C lcd(0x3f, 16, 2);   // HEX-Adresse 0x3f, 16 Zeichen in 2 Zeilen.
@@ -61,6 +62,16 @@ void setup() {
   delay(1000);
   digitalWrite(M1_OUT_A,LOW);
   digitalWrite(M2_OUT_A,LOW);
+
+  for (size_t i = 0; i < 38; i++)
+  {
+    pinMode(i,OUTPUT);
+    digitalWrite(i,HIGH);
+    Serial.println(i);
+    delay(1000);
+    digitalWrite(i,LOW);
+  }
+  
 
 }
 
