@@ -1,7 +1,6 @@
+#include <Arduino.h>
 #include <Bounce2.h>
-#include <LiquidCrystal_I2C.h>  // LiquidCrystal_I2C Bibliothek einbinden.
-#include <Wire.h>               // Wire Bibliothek einbinden.
-
+#include <LiquidCrystal_I2C.h>
 #define motorRunningTime 3000
 
 void HandleStateIdle();
@@ -16,15 +15,13 @@ enum STATES {
   STATE_MOTOR_ACTIVE = 2,
 };
 
-const int BTN_PROD1 = D8;
-const int BTN_PROD2 = D9;
-const int M1_OUT_A = D3;
-const int M1_OUT_B = D4;
-const int M2_OUT_A = D5;
-const int M2_OUT_B = D6;
+const int BTN_PROD1 = 33;
+const int BTN_PROD2 = 25;
 
-// Bestimmung des Displays:
-LiquidCrystal_I2C lcd(0x3f, 16, 2);   // HEX-Adresse 0x3f, 16 Zeichen in 2 Zeilen.
+const int M1_OUT_A = 26;
+const int M1_OUT_B = 26;
+const int M2_OUT_A = 27;
+const int M2_OUT_B = 27;
 
 enum STATES currentState = STATES::STATE_IDLE;
 int selectedProduct = 0;
@@ -32,9 +29,15 @@ int selectedProduct = 0;
 Bounce2::Button button_prod1 = Bounce2::Button();
 Bounce2::Button button_prod2 = Bounce2::Button();
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600); // Serielle Schnittstelle --> Println
+ // Bestimmung des Displays:
+  LiquidCrystal_I2C lcd(0x27, 16, 2);   // HEX-Adresse 0x3f, 16 Zeichen in 2 Zeilen.
+
+
+
+void setup()
+{
+  pinMode(M1_OUT_A, OUTPUT);
+  pinMode(M2_OUT_A, OUTPUT);
 
   button_prod1.attach(BTN_PROD1, INPUT_PULLUP);
   button_prod1.interval(10);
@@ -44,33 +47,18 @@ void setup() {
   button_prod2.interval(10);
   button_prod2.setPressedState(LOW);
 
-  pinMode(M1_OUT_A, OUTPUT);
-  pinMode(M1_OUT_B, OUTPUT);
-  pinMode(M2_OUT_A, OUTPUT);
-  pinMode(M2_OUT_B, OUTPUT);
  
-
-
-  currentState = STATES::STATE_IDLE;
-
   lcd.init();       // Im Setup wird der LCD gestartet.
   lcd.backlight();  // Hintergrundbeleuchtung einschalten.
                     // ( lcd.noBacklight(); schaltet die Beleuchtung aus).
-  digitalWrite(M1_OUT_A,HIGH);
-  digitalWrite(M2_OUT_A,HIGH);
-  delay(1000);
-  digitalWrite(M1_OUT_A,LOW);
-  digitalWrite(M2_OUT_A,LOW);
+  lcd.clear();
+  Printer("Bitte w\xE1hlen", 0);
+  Printer("Sie ein Produkt", 1);
 
+  currentState = STATES::STATE_IDLE;
 }
 
-
-
-void loop() {
-  // put your main code here, to run repeatedly:
-  button_prod1.update();
-  button_prod2.update();
-
+void loop(){
   switch(currentState)
   {
     case (STATES::STATE_IDLE):
@@ -85,27 +73,28 @@ void loop() {
       Serial.println("Ungültiger Zustand");
       break;
   }
+
 }
 
-void HandleStateIdle()
-{
-  bool btn_prod1_pressed = button_prod1.pressed();
-  bool btn_prod2_pressed = button_prod2.pressed();
+void HandleStateIdle(){
+  button_prod1.update();
+  button_prod2.update();
 
-  if (btn_prod1_pressed)
-  {
+  if (button_prod1.pressed()){
     selectedProduct = 1;
+    lcd.clear();
     Printer("Produkt", 0);
     Printer("1", 1);
     digitalWrite(M1_OUT_A, HIGH);
     digitalWrite(M1_OUT_B, LOW);
     currentTime = millis();
     currentState = STATES::STATE_MOTOR_ACTIVE;
+
   }
 
-  if (btn_prod2_pressed)
-  {
+  if(button_prod2.pressed()){
     selectedProduct = 2;
+    lcd.clear();
     Printer("Produkt", 0);
     Printer("2", 1);
     digitalWrite(M2_OUT_A, HIGH);
@@ -114,6 +103,8 @@ void HandleStateIdle()
     currentState = STATES::STATE_MOTOR_ACTIVE;
   }
 }
+
+
 
 void HandleStateMotorActive()
 {
@@ -124,7 +115,8 @@ void HandleStateMotorActive()
     digitalWrite(M1_OUT_B, LOW);
     digitalWrite(M2_OUT_A, LOW);
     digitalWrite(M2_OUT_B, LOW);
-    Printer("Bitte wählen", 0);
+    lcd.clear();
+    Printer("Bitte w\xE1hlen", 0);
     Printer("Sie ein Produkt", 1);
   }
 }
